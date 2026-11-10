@@ -43,11 +43,7 @@ jobs:
           ../ci-run.sh go-download go mod download
           ../ci-run.sh go-verify go mod verify
           ../ci-run.sh go-tidy go mod tidy -diff
-          unformatted=$(gofmt -l .)
-          if [[ -n "$unformatted" ]]; then
-            printf 'Go sources require formatting:\n%s\n' "$unformatted"
-            exit 1
-          fi
+          ../ci-run.sh go-format bash -c 'gofmt -d .; test -z "$(gofmt -l .)"'
       - name: Install pinned SDK and NDK
         run: native/ci-run.sh sdk native/install-sdk.sh
       - name: Set up Gradle and validate wrapper
