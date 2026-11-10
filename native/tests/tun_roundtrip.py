@@ -107,12 +107,60 @@ def tcp(tun, version, source, destination, port, source_port):
     tun.send(packet(version, 6, source, destination, source_port, port, b'', sequence, remote, 0x11))
 
 
+def read_exact(stream, count):
+    result = b''
+    while len(result) < count:
+        chunk = stream.recv(count - len(result))
+        if not chunk:
+            raise AssertionError('SOCKS control connection closed')
+        result += chunk
+    return result
+
+
+def socks_address(stream):
+    kind = read_exact(stream, 1)[0]
+    if kind == 1:
+        address = socket.inet_ntop(socket.AF_INET, read_exact(stream, 4))
+    elif kind == 4:
+        address = socket.inet_ntop(socket.AF_INET6, read_exact(stream, 16))
+    elif kind == 3:
+        address = read_exact(stream, read_exact(stream, 1)[0]).decode('ascii')
+    else:
+        raise AssertionError(f'Invalid SOCKS address type {kind}')
+    return address, struct.unpack('!H', read_exact(stream, 2))[0]
+
+
+def socks_baseline(port):
+    # Isolate the proxy pipeline from the raw-IP/lwIP side before testing both together.
+    with socket.create_connection(('127.0.0.1', port), timeout=5) as control:
+        control.sendall(b'\x05\x01\x02')
+        assert read_exact(control, 2) == b'\x05\x02', 'SOCKS auth method'
+        user, password = b'fixture-user', b'fixture-password'
+        control.sendall(bytes((1, len(user))) + user + bytes((len(password),)) + password)
+        assert read_exact(control, 2) == b'\x01\x00', 'SOCKS authentication'
+        control.sendall(b'\x05\x03\x00\x01\x00\x00\x00\x00\x00\x00')
+        assert read_exact(control, 3) == b'\x05\x00\x00', 'SOCKS UDP ASSOCIATE'
+        peer = socks_address(control)
+        payload = b'authenticated-udp-pipeline-check'
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
+            udp_socket.bind(('127.0.0.1', 0))
+            udp_socket.settimeout(5)
+            datagram = b'\x00\x00\x00\x01' + socket.inet_aton('198.18.0.2') + struct.pack('!H', 12000) + payload
+            udp_socket.sendto(datagram, peer)
+            response, _ = udp_socket.recvfrom(65535)
+            assert response[:4] == b'\x00\x00\x00\x01', 'SOCKS UDP header'
+            assert response[10:] == payload, 'SOCKS UDP payload'
+    print('Authenticated SOCKS5 -> Xray client/server -> UDP echo: pass', flush=True)
+
+
 def main():
     library = ctypes.CDLL(sys.argv[1])
     library.hev_socks5_tunnel_main_from_str.argtypes = [ctypes.c_char_p, ctypes.c_uint, ctypes.c_int]
     library.hev_socks5_tunnel_main_from_str.restype = ctypes.c_int
     library.hev_socks5_tunnel_quit.argtypes = []
     port = int(sys.argv[2])
+    socks_baseline(port)
+    library.hev_socks5_tunnel_stats.argtypes = [ctypes.POINTER(ctypes.c_size_t)] * 4
     config = f'''tunnel:
   mtu: 1400
   ipv4: '10.77.0.1'
@@ -126,7 +174,7 @@ socks5:
   password: 'fixture-password'
 misc:
   log-file: stderr
-  log-level: error
+  log-level: debug
 '''.encode()
     # Check restart/fd ownership as well as both directions of the data plane.
     for attempt in range(2):
@@ -145,6 +193,9 @@ misc:
                     tcp(app, version, src, dst, target, 52000 + index)
             print(f'IPv4/IPv6 UDP 53,12000,27000,43000 + TCP 443,5222,8886: pass (start {attempt + 1})', flush=True)
         finally:
+            stats = [ctypes.c_size_t() for _ in range(4)]
+            library.hev_socks5_tunnel_stats(*(ctypes.byref(value) for value in stats))
+            print("Hev tx/rx packets and bytes:", [value.value for value in stats], flush=True)
             library.hev_socks5_tunnel_quit()
             thread.join(5)
             assert not thread.is_alive(), 'native shutdown hung'
