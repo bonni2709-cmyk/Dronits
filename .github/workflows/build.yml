@@ -38,7 +38,9 @@ jobs:
       - name: Resolve native module checksums and format Go sources
         working-directory: native/xray
         run: |
-          ../../native/ci-run.sh go-modules go mod tidy
+          source ../versions.env
+          ../ci-run.sh go-version go get "github.com/xtls/xray-core@$XRAY_COMMIT"
+          ../ci-run.sh go-modules go mod tidy
           gofmt -w .
           go mod verify
           python3 ../publish-lock.py
