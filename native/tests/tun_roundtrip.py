@@ -161,6 +161,7 @@ def main():
     port = int(sys.argv[2])
     socks_baseline(port)
     library.hev_socks5_tunnel_stats.argtypes = [ctypes.POINTER(ctypes.c_size_t)] * 4
+    library.hev_socks5_tunnel_stats.restype = None
     config = f'''tunnel:
   mtu: 1400
   ipv4: '10.77.0.1'

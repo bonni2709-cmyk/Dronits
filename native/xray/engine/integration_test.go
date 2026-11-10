@@ -182,7 +182,13 @@ func TestTun2SocksTCPUDPAllProtocols(t *testing.T) {
 			serverConfig := object{
 				"log":       object{"loglevel": "none", "access": "none", "error": "none"},
 				"inbounds":  []any{object{"listen": "127.0.0.1", "port": serverPort, "protocol": protocol, "settings": settings, "streamSettings": stream}},
-				"outbounds": []any{object{"protocol": "freedom"}},
+				"outbounds": []any{object{"protocol": "freedom", "settings": object{
+					// Xray server defaults block private destinations. Permit only our loopback aliases.
+					"finalRules": []any{
+						object{"action": "allow", "ip": []string{"198.18.0.2/32", "fd42:776f:7400::2/128"}},
+						object{"action": "block", "delay": 0},
+					},
+				}}},
 			}
 			var server, client Engine
 			if code := server.Start(encoded(t, serverConfig)); code != OK {
