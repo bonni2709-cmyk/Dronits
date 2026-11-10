@@ -34,7 +34,7 @@ internal data class MainUiState(
         get() = step != ConnectionStep.Idle
 
     val vpnActive: Boolean
-        get() = vpnState == VpnState.Preparing || vpnState == VpnState.Connected
+        get() = vpnState == VpnState.Preparing || vpnState == VpnState.Connected || vpnState == VpnState.Stopping
 
     val configurationEditable: Boolean
         get() = !permissionRequestInProgress && !vpnActive

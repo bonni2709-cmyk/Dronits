@@ -165,7 +165,7 @@ internal class MainViewModel(
         super.onCleared()
     }
 
-    private fun VpnState.isActive(): Boolean = this == VpnState.Preparing || this == VpnState.Connected
+    private fun VpnState.isActive(): Boolean = this == VpnState.Preparing || this == VpnState.Connected || this == VpnState.Stopping
 
     class Factory(context: Context) : ViewModelProvider.Factory {
         private val applicationContext = context.applicationContext

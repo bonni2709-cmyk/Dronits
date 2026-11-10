@@ -11,9 +11,10 @@ internal object GameTunnelPolicy {
 
         return builder
             .setSession(sessionName)
-            .setMtu(1400)
-            .addAddress("10.77.0.1", 30)
-            .addAddress("fd42:776f:7400::1", 126)
+            .setMtu(TunnelSettings.MTU)
+            .setBlocking(false)
+            .addAddress(TunnelSettings.IPV4, 30)
+            .addAddress(TunnelSettings.IPV6, 126)
             .addRoute("0.0.0.0", 0)
             .addRoute("::", 0)
             .addDnsServer("1.1.1.1")

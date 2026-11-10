@@ -10,13 +10,15 @@ android {
     namespace = "com.dronits.wotvpn"
     compileSdk = 35
     buildToolsVersion = "35.0.0"
+    ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "com.dronits.wotvpn"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "1.0.0"
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 
     signingConfigs {
@@ -35,6 +37,16 @@ android {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug")
         }
+    }
+
+    sourceSets.getByName("main") {
+        jniLibs.srcDir(layout.buildDirectory.dir("generated/native/jniLibs"))
+        assets.srcDir(layout.buildDirectory.dir("generated/native/assets"))
+    }
+
+    testOptions.unitTests.all {
+        it.systemProperty("wot.fixture.dir", rootProject.file(".work/fixtures").absolutePath)
+        it.outputs.dir(rootProject.file(".work/fixtures"))
     }
 
     buildFeatures {
@@ -71,7 +83,21 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
+    testImplementation("org.json:json:20240303")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.17.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }
+
+val checkNativeLibraries by tasks.registering {
+    doLast {
+        for (abi in listOf("arm64-v8a", "armeabi-v7a", "x86_64")) {
+            for (library in listOf("libxray.so", "libhev-socks5-tunnel.so")) {
+                check(layout.buildDirectory.file("generated/native/jniLibs/$abi/$library").get().asFile.isFile) {
+                    "Missing $abi/$library. Native libraries must be built by GitHub Actions before assembleRelease."
+                }
+            }
+        }
+    }
+}
+tasks.named("preBuild") { dependsOn(checkNativeLibraries) }

@@ -7,7 +7,6 @@
     <string name="vpn_disconnect">Отключить</string>
     <string name="error_game_not_installed">World of Tanks Blitz не установлен</string>
     <string name="error_vpn_permission">Сначала разрешите VPN-подключение в системном диалоге</string>
-    <string name="error_core_unavailable">Подключение недоступно: прокси-ядро и обработчик TUN ещё не интегрированы</string>
     <string name="error_vpn_start">Не удалось запустить VPN. Проверьте разрешения и повторите попытку.</string>
     <string name="error_vpn_stop">Не удалось отправить команду отключения VPN. Повторите попытку.</string>
     <string name="error_vpn_consent_denied">VPN-подключение не разрешено. Запрос можно повторить.</string>
@@ -29,7 +28,7 @@
     <string name="status_permissions">Ожидание разрешения</string>
     <string name="status_error">Подключение недоступно</string>
     <string name="status_disconnected_description">VPN для игры выключен. Трафик телефона идёт напрямую.</string>
-    <string name="status_connected_description">В туннеле только игра. Остальные приложения работают напрямую.</string>
+    <string name="status_connected_description">Локальный туннель запущен только для игры. Доступность игры и UDP зависит от выбранного сервера.</string>
     <string name="status_preparing_description">Проверяем разрешения и готовность VPN-сервиса.</string>
     <string name="status_permissions_description">Подтвердите запрос в системном диалоге. Без разрешения VPN не запустится.</string>
     <string name="connect">Подключить</string>
@@ -45,10 +44,20 @@
     <string name="config_clear">Очистить</string>
     <string name="config_privacy">Ссылка хранится только в памяти приложения. После завершения процесса её нужно вставить заново. Снимки экрана отключены.</string>
 
-    <string name="stage_title">Модуль 2 · интерфейс готов</string>
-    <string name="stage_description">Кнопка проверяет ввод и разрешения. Прокси-ядро и tun2socks ещё не подключены: соединение не устанавливается, трафик не перехватывается.</string>
-    <string name="udp_requirement">Следующий этап — TCP и UDP: бои по UDP 12000–43000 и авторизация по TCP 443, 5222, 8886. Полная проверка ссылки и сервера появится с ядром.</string>
+    <string name="stage_title">Xray · SOCKS5 · tun2socks</string>
+    <string name="stage_description">Туннель предназначен только для версии игры Wargaming. Сервер должен поддерживать UDP; остальные приложения в VPN не добавляются.</string>
+    <string name="udp_requirement">Передаётся весь трафик игры: включая UDP 12000–43000, TCP 443, 5222, 8886 и DNS. Плагины Shadowsocks и устаревшие транспорты не поддерживаются.</string>
     <string name="notifications_off">Уведомления отключены</string>
     <string name="notifications_off_description">Это не мешает запросить VPN. Статус и ошибки доступны на этом экране.</string>
     <string name="notification_settings">Настройки уведомлений</string>
+    <string name="vpn_connected">VPN активен только для World of Tanks Blitz</string>
+    <string name="status_stopping">Отключение…</string>
+    <string name="status_stopping_description">Закрываем TUN и освобождаем ресурсы ядра.</string>
+    <string name="error_config_settings">Некорректные или неподдерживаемые параметры ссылки. Проверьте адрес, порт, UUID, транспорт и TLS. Небезопасный TLS и внешние плагины не разрешены.</string>
+    <string name="error_native_unavailable">Нативные библиотеки недоступны для этого устройства. Установите полный APK из GitHub Actions.</string>
+    <string name="error_core_start">Не удалось запустить локальное ядро Xray</string>
+    <string name="error_socks_udp">Локальный SOCKS5 не подтвердил поддержку UDP. TUN не создан.</string>
+    <string name="error_tun_establish">Не удалось создать игровой TUN. Проверьте разрешение VPN.</string>
+    <string name="error_relay_start">Не удалось запустить обработчик TCP/UDP tun2socks</string>
+    <string name="error_core_stopped">Прокси-ядро или tun2socks остановился. VPN отключён.</string>
 </resources>

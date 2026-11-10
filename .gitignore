@@ -23,3 +23,7 @@ captures/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Downloaded native sources and generated binaries
+.work/
+*.so

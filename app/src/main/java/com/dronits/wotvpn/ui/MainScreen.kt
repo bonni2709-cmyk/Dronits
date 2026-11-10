@@ -98,8 +98,8 @@ internal fun MainScreen(
                         keyboard?.hide()
                         onConnectionClick()
                     },
-                    enabled = state.vpnActive ||
-                        (!state.permissionRequestInProgress && state.gameInstalled),
+                    enabled = state.vpnState != VpnState.Stopping && (state.vpnActive ||
+                        (!state.permissionRequestInProgress && state.gameInstalled)),
                     modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = if (state.vpnActive) {
@@ -111,7 +111,7 @@ internal fun MainScreen(
                         ButtonDefaults.buttonColors()
                     },
                 ) {
-                    if (state.permissionRequestInProgress || state.vpnState == VpnState.Preparing) {
+                    if (state.permissionRequestInProgress || state.vpnState == VpnState.Preparing || state.vpnState == VpnState.Stopping) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(22.dp),
                             strokeWidth = 2.dp,
@@ -128,6 +128,7 @@ internal fun MainScreen(
                     Text(
                         text = stringResource(
                             when {
+                                state.vpnState == VpnState.Stopping -> R.string.status_stopping
                                 state.vpnActive -> R.string.vpn_disconnect
                                 state.permissionRequestInProgress -> R.string.status_preparing
                                 else -> R.string.connect
@@ -147,7 +148,7 @@ internal fun MainScreen(
                 if (!state.notificationsEnabled) {
                     NotificationNotice(onNotificationSettings, enabled = !state.permissionRequestInProgress)
                 }
-                StageNotice()
+                EngineNotice()
                 Text(
                     stringResource(R.string.config_privacy),
                     style = MaterialTheme.typography.bodySmall,
@@ -308,7 +309,7 @@ private fun NotificationNotice(onSettings: () -> Unit, enabled: Boolean) {
 }
 
 @Composable
-private fun StageNotice() {
+private fun EngineNotice() {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
@@ -332,7 +333,7 @@ private fun StageNotice() {
 
 @Composable
 private fun statusColor(state: MainUiState): Color = when {
-    state.permissionRequestInProgress || state.vpnState == VpnState.Preparing -> MaterialTheme.colorScheme.secondary
+    state.permissionRequestInProgress || state.vpnState == VpnState.Preparing || state.vpnState == VpnState.Stopping -> MaterialTheme.colorScheme.secondary
     state.vpnState == VpnState.Connected -> MaterialTheme.colorScheme.primary
     state.actionError != null || state.vpnState is VpnState.Error -> MaterialTheme.colorScheme.error
     else -> MaterialTheme.colorScheme.onSurface
@@ -341,6 +342,7 @@ private fun statusColor(state: MainUiState): Color = when {
 @Composable
 private fun statusTitle(state: MainUiState): String = stringResource(
     when {
+        state.vpnState == VpnState.Stopping -> R.string.status_stopping
         state.permissionRequestInProgress -> R.string.status_permissions
         state.vpnState == VpnState.Preparing -> R.string.status_preparing
         state.vpnState == VpnState.Connected -> R.string.status_connected
@@ -351,6 +353,7 @@ private fun statusTitle(state: MainUiState): String = stringResource(
 
 @Composable
 private fun statusDescription(state: MainUiState): String = when {
+    state.vpnState == VpnState.Stopping -> stringResource(R.string.status_stopping_description)
     state.permissionRequestInProgress -> stringResource(R.string.status_permissions_description)
     state.actionError != null -> stringResource(state.actionError.messageRes)
     state.vpnState == VpnState.Preparing -> stringResource(R.string.status_preparing_description)
