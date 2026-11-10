@@ -56,6 +56,9 @@ jobs:
         run: native/ci-run.sh android-native native/build-android.sh
       - name: Unit tests, link compiler fixtures and Android lint
         run: native/ci-run.sh kotlin ./gradlew --no-daemon testDebugUnitTest lintRelease
+      - name: Summarize Android verification
+        if: always()
+        run: python3 native/report-ci.py
       - name: Build native Linux test library
         run: native/ci-run.sh linux-native make -C .work/hev shared -j2
       - name: End-to-end TCP and UDP packet tests
