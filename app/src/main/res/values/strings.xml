@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">WoT Blitz VPN</string>
+    <string name="vpn_notification_channel">VPN для World of Tanks Blitz</string>
+    <string name="vpn_notification_channel_description">Состояние VPN и ошибки подключения</string>
+    <string name="vpn_preparing">Проверка подключения для World of Tanks Blitz…</string>
+    <string name="vpn_disconnect">Отключить</string>
+    <string name="error_game_not_installed">World of Tanks Blitz не установлен</string>
+    <string name="error_vpn_permission">Сначала разрешите VPN-подключение в системном диалоге</string>
+    <string name="error_core_unavailable">Подключение недоступно: прокси-ядро и обработчик TUN ещё не интегрированы</string>
+    <string name="error_vpn_start">Не удалось запустить VPN. Проверьте разрешения и повторите попытку.</string>
+    <string name="error_vpn_stop">Не удалось отправить команду отключения VPN. Повторите попытку.</string>
+    <string name="error_vpn_consent_denied">VPN-подключение не разрешено. Запрос можно повторить.</string>
+    <string name="error_permission_dialog">Не удалось открыть системный запрос разрешения. Повторите попытку.</string>
+    <string name="error_settings_unavailable">Настройки уведомлений недоступны на этом устройстве</string>
+    <string name="error_config_empty">Вставьте ссылку конфигурации сервера</string>
+    <string name="error_config_too_long">Ссылка слишком длинная: максимум 32 768 символов</string>
+    <string name="error_config_single_link">Нужна одна ссылка без переносов строк и управляющих символов</string>
+    <string name="error_config_scheme">Поддерживаются ссылки vless://, vmess://, trojan:// и ss://</string>
+    <string name="error_config_payload">После :// должны быть параметры сервера</string>
+
+    <string name="header_tagline">СВОЙ МАРШРУТ ДЛЯ BLITZ</string>
+    <string name="game_scope_title">Только World of Tanks Blitz</string>
+    <string name="game_installed">Игра найдена · Wargaming</string>
+    <string name="game_missing_hint">Установите версию Wargaming. Другие приложения и версии игры в VPN не добавляются.</string>
+    <string name="status_connected">Подключено</string>
+    <string name="status_disconnected">Отключено</string>
+    <string name="status_preparing">Подготовка подключения…</string>
+    <string name="status_permissions">Ожидание разрешения</string>
+    <string name="status_error">Подключение недоступно</string>
+    <string name="status_disconnected_description">VPN для игры выключен. Трафик телефона идёт напрямую.</string>
+    <string name="status_connected_description">В туннеле только игра. Остальные приложения работают напрямую.</string>
+    <string name="status_preparing_description">Проверяем разрешения и готовность VPN-сервиса.</string>
+    <string name="status_permissions_description">Подтвердите запрос в системном диалоге. Без разрешения VPN не запустится.</string>
+    <string name="connect">Подключить</string>
+    <string name="cancel_request">Отменить запрос</string>
+
+    <string name="config_title">Настройки сервера</string>
+    <string name="config_label">Ссылка конфигурации</string>
+    <string name="config_placeholder">vless://… или vmess://…</string>
+    <string name="config_supported">VLESS · VMess · Trojan · Shadowsocks (ss://)</string>
+    <string name="config_single_link_hint">Одна ссылка, не список подписки</string>
+    <string name="config_show">Показать</string>
+    <string name="config_hide">Скрыть</string>
+    <string name="config_clear">Очистить</string>
+    <string name="config_privacy">Ссылка хранится только в памяти приложения. После завершения процесса её нужно вставить заново. Снимки экрана отключены.</string>
+
+    <string name="stage_title">Модуль 2 · интерфейс готов</string>
+    <string name="stage_description">Кнопка проверяет ввод и разрешения. Прокси-ядро и tun2socks ещё не подключены: соединение не устанавливается, трафик не перехватывается.</string>
+    <string name="udp_requirement">Следующий этап — TCP и UDP: бои по UDP 12000–43000 и авторизация по TCP 443, 5222, 8886. Полная проверка ссылки и сервера появится с ядром.</string>
+    <string name="notifications_off">Уведомления отключены</string>
+    <string name="notifications_off_description">Это не мешает запросить VPN. Статус и ошибки доступны на этом экране.</string>
+    <string name="notification_settings">Настройки уведомлений</string>
+</resources>

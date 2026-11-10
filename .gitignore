@@ -1,0 +1,25 @@
+# Gradle / Android Studio
+.gradle/
+.kotlin/
+**/build/
+local.properties
+.idea/
+*.iml
+.externalNativeBuild/
+.cxx/
+captures/
+
+# Generated packages and local credentials
+*.apk
+*.aab
+*.jks
+*.keystore
+*.p12
+!signing/debug.keystore
+.env
+.env.*
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+*.swp
