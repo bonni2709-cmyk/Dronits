@@ -35,10 +35,6 @@ jobs:
         with:
           go-version: "1.27.3"
           cache-dependency-path: native/xray/go.sum
-      - name: Install pinned SDK and NDK
-        run: native/ci-run.sh sdk sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;28.2.13676358"
-      - name: Set up Gradle and validate wrapper
-        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Resolve native module checksums and format Go sources
         working-directory: native/xray
         run: |
@@ -46,6 +42,10 @@ jobs:
           gofmt -w .
           go mod verify
           python3 ../publish-lock.py
+      - name: Install pinned SDK and NDK
+        run: native/ci-run.sh sdk native/install-sdk.sh
+      - name: Set up Gradle and validate wrapper
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Build Go-JNI and NDK libraries for all supported ABIs
         run: native/ci-run.sh android-native native/build-android.sh
       - name: Unit tests, link compiler fixtures and Android lint
