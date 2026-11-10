@@ -35,15 +35,19 @@ jobs:
         with:
           go-version: "1.27.3"
           cache-dependency-path: native/xray/go.sum
-      - name: Resolve native module checksums and format Go sources
+      - name: Verify native dependency lock and Go formatting
         working-directory: native/xray
         run: |
           source ../versions.env
-          ../ci-run.sh go-version go get "github.com/xtls/xray-core@$XRAY_COMMIT"
-          ../ci-run.sh go-modules go mod tidy
-          gofmt -w .
-          go mod verify
-          python3 ../publish-lock.py
+          test "$(go list -m -mod=readonly -f '{{.Version}}' github.com/xtls/xray-core)" = "$XRAY_MODULE_VERSION"
+          ../ci-run.sh go-download go mod download
+          ../ci-run.sh go-verify go mod verify
+          ../ci-run.sh go-tidy go mod tidy -diff
+          unformatted=$(gofmt -l .)
+          if [[ -n "$unformatted" ]]; then
+            printf 'Go sources require formatting:\n%s\n' "$unformatted"
+            exit 1
+          fi
       - name: Install pinned SDK and NDK
         run: native/ci-run.sh sdk native/install-sdk.sh
       - name: Set up Gradle and validate wrapper
@@ -58,7 +62,7 @@ jobs:
         working-directory: native/xray
         run: |
           sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
-          ../ci-run.sh native-tests go test -mod=readonly -p 2 -timeout 180s -v ./engine
+          ../ci-run.sh native-tests go test -mod=readonly -ldflags=-checklinkname=0 -p 2 -timeout 180s -v ./engine
       - name: Build release APK with personal debug signing
         run: native/ci-run.sh apk ./gradlew --no-daemon assembleRelease
       - name: Verify signature and 16 KiB native ZIP alignment

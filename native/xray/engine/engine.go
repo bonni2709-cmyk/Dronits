@@ -17,7 +17,7 @@ const (
 
 // Engine owns one in-process Xray instance. Error codes never contain credentials.
 type Engine struct {
-	mu sync.Mutex
+	mu       sync.Mutex
 	instance *core.Instance
 }
 
@@ -26,15 +26,24 @@ func (e *Engine) Start(config []byte) (code int) {
 	defer e.mu.Unlock()
 	defer func() {
 		if recover() != nil {
-			if e.instance != nil { _ = e.instance.Close(); e.instance = nil }
+			if e.instance != nil {
+				_ = e.instance.Close()
+				e.instance = nil
+			}
 			code = InternalError
 		}
 	}()
-	if e.instance != nil { return AlreadyRunning }
+	if e.instance != nil {
+		return AlreadyRunning
+	}
 	parsed, err := core.LoadConfig("json", bytes.NewReader(config))
-	if err != nil { return InvalidConfig }
+	if err != nil {
+		return InvalidConfig
+	}
 	instance, err := core.New(parsed)
-	if err != nil { return InvalidConfig }
+	if err != nil {
+		return InvalidConfig
+	}
 	e.instance = instance
 	if err := instance.Start(); err != nil {
 		_ = instance.Close()

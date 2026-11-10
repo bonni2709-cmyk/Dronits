@@ -24,8 +24,12 @@ func protectSocket(network, address string, raw syscall.RawConn) error {
 	allowed := false
 	if err := raw.Control(func(fd uintptr) {
 		allowed = C.wot_protect_socket(C.int(fd)) != 0
-	}); err != nil { return err }
-	if !allowed { return errors.New("VPN socket protection denied") }
+	}); err != nil {
+		return err
+	}
+	if !allowed {
+		return errors.New("VPN socket protection denied")
+	}
 	return nil
 }
 
@@ -38,8 +42,12 @@ func init() {
 
 //export WotXrayStart
 func WotXrayStart(data *C.char, length C.int) C.int {
-	if controllerError != nil { return C.int(engine.InternalError) }
-	if data == nil || length <= 0 || length > 262144 { return C.int(engine.InvalidConfig) }
+	if controllerError != nil {
+		return C.int(engine.InternalError)
+	}
+	if data == nil || length <= 0 || length > 262144 {
+		return C.int(engine.InvalidConfig)
+	}
 	config := C.GoBytes(unsafe.Pointer(data), length)
 	defer clear(config)
 	return C.int(mobileEngine.Start(config))
@@ -50,6 +58,8 @@ func WotXrayStop() { mobileEngine.Stop() }
 
 //export WotXrayRunning
 func WotXrayRunning() C.int {
-	if mobileEngine.IsRunning() { return 1 }
+	if mobileEngine.IsRunning() {
+		return 1
+	}
 	return 0
 }

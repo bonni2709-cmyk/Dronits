@@ -22,7 +22,7 @@ for abi in arm64-v8a armeabi-v7a x86_64; do
     cd "$ROOT/native/xray"
     export GOOS=android CGO_ENABLED=1 CC="$TOOLCHAIN/${compiler}${ANDROID_API}-clang"
     go build -mod=readonly -p 2 -trimpath -buildvcs=false -buildmode=c-shared \
-      -ldflags='-s -w -extldflags=-Wl,-z,max-page-size=16384,-z,common-page-size=16384' \
+      -ldflags='-s -w -checklinkname=0 -extldflags=-Wl,-z,max-page-size=16384,-z,common-page-size=16384' \
       -o "$OUT/$abi/libxray.so" .
   )
   rm -f "$OUT/$abi/libxray.h"

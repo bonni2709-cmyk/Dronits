@@ -120,6 +120,7 @@ native/
 ```
 
 Xray **v26.11.9**, commit `676eaf66f8f05d4d558ee7a74b4736623d3feeb9`,
+Go module Xray закреплён по pseudo-version из этого же commit в `go.mod`/`go.sum`.
 Hev **2.19.3**, commit `c5584feca8f6df70ee53eb2879e034b849a3d15a`.
 Hev submodules фиксируются gitlinks upstream commit. Единственная адаптация
 Hev, помимо JNI wrapper: readiness callback после подготовки lwIP tasks.
@@ -135,7 +136,9 @@ Xray upstream не изменяется. Native исходники скачив�
 Среда: JDK 17, Gradle 8.11.1, AGP 8.9.2, Kotlin / Compose compiler 2.1.21,
 SDK / target 35, NDK 28.2.13676358, Go 1.27.3. Wrapper и Actions закреплены;
 дистрибутив Gradle проверяется по SHA-256. Native ELF и APK ZIP проверяются
-на 16 KiB page alignment.
+на 16 KiB page alignment. Для Android-зависимости `anet` используется
+`-checklinkname=0`, как в release workflow закреплённого upstream Xray.
+CI проверяет неизменность Go module lock и форматирования.
 
 CI:
 
