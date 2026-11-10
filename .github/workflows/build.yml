@@ -52,19 +52,38 @@ jobs:
         run: native/ci-run.sh sdk native/install-sdk.sh
       - name: Set up Gradle and validate wrapper
         uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+      - name: Restore verified native libraries
+        id: native-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: app/build/generated/native
+          key: native-v1-${{ runner.os }}-${{ hashFiles('native/versions.env', 'native/build-android.sh', 'native/fetch-hev.sh', 'native/hev/**', 'native/xray/go.*', 'native/xray/*.go', 'native/xray/*.c', 'native/xray/engine/engine.go', 'native/xray/engine/register.go', 'native/collect-licenses.py') }}
       - name: Build Go-JNI and NDK libraries for all supported ABIs
+        if: steps.native-cache.outputs.cache-hit != 'true'
         run: native/ci-run.sh android-native native/build-android.sh
+      - name: Cache verified native libraries
+        if: steps.native-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: app/build/generated/native
+          key: ${{ steps.native-cache.outputs.cache-primary-key }}
       - name: Unit tests, link compiler fixtures and Android lint
         run: native/ci-run.sh kotlin ./gradlew --no-daemon testDebugUnitTest lintRelease
       - name: Summarize Android verification
         if: always()
         run: python3 native/report-ci.py
       - name: Build native Linux test library
-        run: native/ci-run.sh linux-native make -C .work/hev shared -j2
+        run: |
+          native/ci-run.sh source-fetch native/fetch-hev.sh
+          native/ci-run.sh linux-native make -C .work/hev shared -j2
       - name: End-to-end TCP and UDP packet tests
         working-directory: native/xray
         run: |
           sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
+          # Non-loopback destinations avoid lwIP's own 127.0.0.1/::1 local interface.
+          # Both are assigned to the runner's loopback: no external echo traffic.
+          sudo ip address add 198.18.0.2/32 dev lo
+          sudo ip -6 address add fd42:776f:7400::2/128 dev lo nodad
           export LD_LIBRARY_PATH="$(find "$GITHUB_WORKSPACE/.work/hev" -name '*.so' -printf '%h\n' | sort -u | paste -sd :)"
           ../ci-run.sh native-tests go test -mod=readonly -ldflags=-checklinkname=0 -p 2 -timeout 180s -v ./engine
       - name: Build release APK with personal debug signing

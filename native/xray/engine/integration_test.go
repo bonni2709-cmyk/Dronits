@@ -118,9 +118,9 @@ func TestTun2SocksTCPUDPAllProtocols(t *testing.T) {
 		t.Fatal("Hev test library missing: ", err)
 	}
 	for _, family := range []string{"4", "6"} {
-		host := "127.0.0.1"
+		host := "198.18.0.2"
 		if family == "6" {
-			host = "::1"
+			host = "fd42:776f:7400::2"
 		}
 		for _, port := range []int{443, 5222, 8886} {
 			listener, err := net.Listen("tcp"+family, net.JoinHostPort(host, strconv.Itoa(port)))

@@ -77,6 +77,7 @@ def receive(tun, predicate):
 
 
 def udp(tun, version, source, destination, port, source_port):
+    print(f'UDP IPv{version} port {port}', flush=True)
     payload = b'blitz-udp\x00' + bytes(range(256)) * 4 + struct.pack('!H', port)
     tun.send(packet(version, 17, source, destination, source_port, port, payload))
     reply = receive(tun, lambda p: p[:4] == (version, 17, port, source_port))
@@ -84,6 +85,7 @@ def udp(tun, version, source, destination, port, source_port):
 
 
 def tcp(tun, version, source, destination, port, source_port):
+    print(f'TCP IPv{version} port {port}', flush=True)
     sequence = 100000 + source_port
     tun.send(packet(version, 6, source, destination, source_port, port, b'', sequence, 0, 0x02))
     syn = receive(tun, lambda p: p[:4] == (version, 6, port, source_port) and p[6] & 0x12 == 0x12)
@@ -136,7 +138,7 @@ misc:
             library.hev_socks5_tunnel_main_from_str(config, len(config), native.fileno())), daemon=True)
         thread.start()
         try:
-            for version, src, dst in ((4, '10.77.0.1', '127.0.0.1'), (6, 'fd42:776f:7400::1', '::1')):
+            for version, src, dst in ((4, '10.77.0.1', '198.18.0.2'), (6, 'fd42:776f:7400::1', 'fd42:776f:7400::2')):
                 for index, target in enumerate((53, 12000, 27000, 43000)):
                     udp(app, version, src, dst, target, 51000 + index)
                 for index, target in enumerate((443, 5222, 8886)):
