@@ -129,6 +129,8 @@ misc:
     # Check restart/fd ownership as well as both directions of the data plane.
     for attempt in range(2):
         app, native = socket.socketpair(socket.AF_UNIX, socket.SOCK_DGRAM)
+        # Match VpnService.Builder.setBlocking(false); lwIP's task scheduler must never block in read().
+        native.setblocking(False)
         result = []
         thread = threading.Thread(target=lambda: result.append(
             library.hev_socks5_tunnel_main_from_str(config, len(config), native.fileno())), daemon=True)

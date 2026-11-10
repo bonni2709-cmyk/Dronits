@@ -12,9 +12,11 @@ if [[ "$status" != 0 ]]; then
   python3 - "$log" <<'PY'
 from pathlib import Path
 import sys
-text=Path(sys.argv[1]).read_text(errors='replace')[-22000:]
-text=text.replace('%','%25').replace('\r','%0D').replace('\n','%0A')
-print('::error title=Build diagnostics::'+text)
+text = Path(sys.argv[1]).read_text(errors='replace')[-22000:]
+chunks = [text[i:i + 2800] for i in range(0, len(text), 2800)]
+for index, chunk in enumerate(chunks, 1):
+    chunk = chunk.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+    print(f'::error title=Build diagnostics {index:02d}/{len(chunks):02d}::{chunk}')
 PY
 fi
 exit "$status"
